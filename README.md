@@ -1,0 +1,9 @@
+# Bloomberg Stream
+
+Downloads and appends each 2 second Transport Stream video file from Bloomberg's server to a local file using HTTP requests.
+
+Uses threading to concurrently play the video file in Windows Media Player in real time.
+
+Enjoy live Bloomberg TV in a sleek window without any of the annoyances that come with a using web browser such as Javascript nonsense like viewing-time limits, paywalls, ad-blocker blocking, ect...
+
+Also, you have obviously a downloaded file that you can rewatch later. 
