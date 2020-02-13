@@ -43,7 +43,7 @@ m3u8_url = f"{root_url}/{ext_url}_live.m3u8"
 
 BB_Stream = Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
 
-threading.Thread(target=BB_Stream.download_stream, daemon=True).start()
+threading.Thread(target=BB_Stream.download_stream).start()
 time.sleep(1)
 threading.Thread(target=BB_Stream.display_video, daemon=True).start()
 
