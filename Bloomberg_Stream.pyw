@@ -17,8 +17,9 @@ class Stream:
 		self.m3u8_url = m3u8_url
 
 	def download_stream(self):
+		self.streaming = True
 		with open("video.ts", "wb") as f:
-			while True:
+			while self.streaming is True:
 				r = requests.get(self.m3u8_url)
 
 				m3u8_file = m3u8.loads(r.text.replace("Source", f"{self.root_url}/Source"))
@@ -32,9 +33,15 @@ class Stream:
 
 				time.sleep(1)
 
-
 	def display_video(self):
 		subprocess.call([r"C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe", f"{os.path.dirname(sys.argv[0])}\\video.ts"])
+
+	def watching(self):
+		if "wmplayer.exe" in (p.name() for p in psutil.process_iter()):
+			return True
+		else:
+			self.streaming = False
+			return False
 
 
 root_url = "https://liveprodusphoenixeast.global.ssl.fastly.net/USPhx-HD/Channel-TX-USPhx-AWS-virginia-1"
@@ -44,10 +51,11 @@ m3u8_url = f"{root_url}/{ext_url}_live.m3u8"
 BB_Stream = Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
 
 threading.Thread(target=BB_Stream.download_stream).start()
-time.sleep(1)
-threading.Thread(target=BB_Stream.display_video, daemon=True).start()
 
-while "wmplayer.exe" in (p.name() for p in psutil.process_iter()):
+while len(BB_Stream.used_uris) == 0:
 	pass
-print("it's over")
 
+BB_Stream.display_video()
+
+while BB_Stream.watching():
+	pass
