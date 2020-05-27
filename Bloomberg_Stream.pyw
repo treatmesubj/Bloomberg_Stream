@@ -9,6 +9,12 @@ import platform
 
 
 class Stream:
+	"""
+	Stream Object: organizes resources necessary for streaming;
+		continually requests the updating m3u8 file, and writes
+		its pointed-to transport stream files to a local file
+
+	"""
 
 	def __init__(self, root_url, ext_url, m3u8_url):
 		self.used_uris = []  #  not shared if in other process
@@ -26,12 +32,17 @@ class Stream:
 				ts_uris = [seg['uri'] for seg in m3u8_file.data['segments']]
 				for ts_uri in ts_uris:
 					if ts_uri not in self.used_uris:
+						# avoid writing the same segments
 						self.used_uris.append(ts_uri)
 						f.write(requests.get(ts_uri).content)
 				time.sleep(1)
 
 
 class Windows_Stream(Stream):
+	"""
+	Windows-specific stream object; inherits from the Stream base-class
+
+	"""
 
 	def __init__(self, **kwargs):
 		self.vid_path = f"{os.path.dirname(sys.argv[0])}\\bb_stream.ts"
@@ -57,6 +68,10 @@ class Windows_Stream(Stream):
 
 
 class Termux_Stream(Stream):
+	"""
+	Termux-specific stream object; inherits from the Stream base-class
+
+	"""
 
 	def __init__(self, **kwargs):
 		self.vid_path = 'bb_stream.ts'
@@ -69,7 +84,26 @@ class Termux_Stream(Stream):
 		return "IDK"
 
 	def wrap_up(self, stream_process):
-		print("You'll have to wrap it up yourself")
+		print("You'll have to wrap up things yourself")
+
+
+def Stream_Session(Stream_Obj):
+	"""
+	Handles the facets of a stream session using a stream object:
+		spins up the processes, kills them when stream is apparently 
+		done being watched, and disposes of the left over resources
+	"""
+
+	stream_dl_proc = multiprocessing.Process(target=Stream_Obj.download_stream)
+	stream_dl_proc.start()  # concurrent download process while everything else happens
+	while not os.path.exists(Stream_Obj.vid_path) or os.stat(Stream_Obj.vid_path).st_size < 100:
+		pass  # build up at least some buffer for streaming continuity and ability to open file
+	Stream_Obj.display_video()
+	while Stream_Obj.is_watching() is not False:
+		time.sleep(1)
+		pass
+	else:
+		Stream_Obj.wrap_up(stream_dl_proc)
 
 
 if __name__ == '__main__':
@@ -79,22 +113,9 @@ if __name__ == '__main__':
 	m3u8_url = f"{root_url}/{ext_url}_live.m3u8"
 
 	if platform.system() == 'Windows':
-		import psutil
+		import psutil  # termux can't handle this, I guess
 		BB_Stream = Windows_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
 	if platform.system() == 'Linux' and 'termux' in os.environ['SHELL']:
 		BB_Stream = Termux_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
 
-	stream_dl_proc = multiprocessing.Process(target=BB_Stream.download_stream)
-	stream_dl_proc.start()
-
-	while not os.path.exists(BB_Stream.vid_path) or os.stat(BB_Stream.vid_path).st_size < 100:
-		pass
-
-	BB_Stream.display_video()
-
-	while BB_Stream.is_watching() is not False:
-		time.sleep(1)
-		pass
-	else:
-		BB_Stream.wrap_up(stream_dl_proc)
-
+	Stream_Session(BB_Stream)
