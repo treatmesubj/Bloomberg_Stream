@@ -40,10 +40,18 @@ class Windows_Stream(Stream):
 	def display_video(self):
 		subprocess.call([r"C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe", self.vid_path])
 
-	def watching(self):
-		if "wmplayer.exe" in (p.name() for p in psutil.process_iter()):
-			return True
+	def watching(self, stream_process):
+		while "wmplayer.exe" in (p.name() for p in psutil.process_iter()):
+			time.sleep(1)
+			pass
 		else:
+			stream_process.terminate()
+			while True:
+				try:
+					os.remove(self.vid_path)
+					break
+				except Exception:
+					pass
 			return False
 
 
@@ -77,16 +85,7 @@ if __name__ == '__main__':
 
 	BB_Stream.display_video()
 
-	if platform.system() == 'Windows':
-		while BB_Stream.watching():
-			time.sleep(1)
-			pass
-		else:
-			stream_dl_proc.terminate()
-			while True:
-				try:
-					os.remove(BB_Stream.vid_path)
-					break
-				except Exception:
-					pass
-			print("done streaming")
+	if BB_Stream.watching(stream_dl_proc) is False:
+		print('done watching')
+
+
