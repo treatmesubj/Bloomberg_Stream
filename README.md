@@ -4,7 +4,7 @@ Enjoy live Bloomberg TV in a sleek window without any of the annoyances that com
 
 ## Bloomberg_Stream.html
 Uses the HTTP Live Streaming protocol via hls.js and some HTML; it can be opened with a web browser without any setup or dependencies. Video Controls allow for picture-in-a-picture, full screen, resizing, ect. Seems like it's always forced on the foreground of your screen, though. 
-![alt text](https://github.com/treatmesubj/Bloomberg_Stream/blob/master/Screenshot%20(32).png)
+![alt text](https://github.com/treatmesubj/Bloomberg_Stream/blob/master/Screenshot%20(33).png)
 
 
 ## Bloomberg_Stream.pyw
