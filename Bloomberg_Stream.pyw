@@ -80,7 +80,7 @@ class Termux_Stream(Stream):
 	def display_video(self):
 		subprocess.call(['termux-open', '--chooser', self.vid_path])
 
-	def is_watching(self, stream_process):
+	def is_watching(self):
 		return "IDK"
 
 	def wrap_up(self, stream_process):
