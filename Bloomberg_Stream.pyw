@@ -115,7 +115,9 @@ if __name__ == '__main__':
 	if platform.system() == 'Windows':
 		import psutil  # termux can't handle this, I guess
 		BB_Stream = Windows_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
-	if platform.system() == 'Linux' and 'termux' in os.environ['SHELL']:
+	elif platform.system() == 'Linux' and 'termux' in os.environ['SHELL']:
 		BB_Stream = Termux_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
+	else:
+		print(f"{os.environment=}\nNo support for this environment yet...")
 
 	Stream_Session(BB_Stream)
