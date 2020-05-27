@@ -6,8 +6,6 @@ import os
 import sys
 import multiprocessing
 import platform
-if platform.system() == 'Windows':
-	import psutil  # idk, Termux import issue
 
 
 class Stream:
@@ -49,7 +47,7 @@ class Windows_Stream(Stream):
 			return False
 
 
-class Linux_Stream(Stream):
+class Termux_Stream(Stream):
 
 	def __init__(self, **kwargs):
 		self.vid_path = 'bb_stream.ts'
@@ -66,9 +64,10 @@ if __name__ == '__main__':
 	m3u8_url = f"{root_url}/{ext_url}_live.m3u8"
 
 	if platform.system() == 'Windows':
+		import psutil
 		BB_Stream = Windows_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
-	if platform.system() == 'Linux':
-		BB_Stream = Linux_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
+	if platform.system() == 'Linux' and 'termux' in os.environ['SHELL']:
+		BB_Stream = Termux_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
 
 	stream_dl_proc = multiprocessing.Process(target=BB_Stream.download_stream)
 	stream_dl_proc.start()
