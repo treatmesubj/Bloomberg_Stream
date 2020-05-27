@@ -4,6 +4,7 @@ Enjoy live Bloomberg TV in a sleek window without any of the annoyances that com
 
 ## Bloomberg_Stream.html
 Uses the HTTP Live Streaming protocol via hls.js and some HTML; it can be opened with a web browser without any setup or dependencies. Video Controls allow for picture-in-a-picture, full screen, resizing, ect. Seems like it's always forced on the foreground of your screen, though. 
+
 ![alt text](https://github.com/treatmesubj/Bloomberg_Stream/blob/master/Screenshot%20(33).png)
 
 
@@ -12,4 +13,5 @@ Uses HTTP requests, subprocesses, and multiprocessing to continually request m3u
 ```
 Closing Windows Media Player will kill __main__ and the transport stream download process as well
 ```
+
 ![alt text](https://github.com/treatmesubj/Bloomberg_Stream/blob/master/Screenshot%20(31).png)
