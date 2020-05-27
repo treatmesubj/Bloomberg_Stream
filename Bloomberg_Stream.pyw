@@ -118,6 +118,6 @@ if __name__ == '__main__':
 	elif platform.system() == 'Linux' and 'termux' in os.environ['SHELL']:
 		BB_Stream = Termux_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
 	else:
-		print(f"{os.environment=}\nNo support for this environment yet...")
+		print(f"{os.environ=}\nNo support for this environment yet...")
 
 	Stream_Session(BB_Stream)
