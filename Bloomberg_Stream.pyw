@@ -40,29 +40,36 @@ class Windows_Stream(Stream):
 	def display_video(self):
 		subprocess.call([r"C:\\Program Files (x86)\\Windows Media Player\\wmplayer.exe", self.vid_path])
 
-	def watching(self, stream_process):
-		while "wmplayer.exe" in (p.name() for p in psutil.process_iter()):
-			time.sleep(1)
-			pass
+	def is_watching(self):
+		if "wmplayer.exe" in (p.name() for p in psutil.process_iter()):
+			return True
 		else:
-			stream_process.terminate()
-			while True:
-				try:
-					os.remove(self.vid_path)
-					break
-				except Exception:
-					pass
 			return False
+
+	def wrap_up(self, stream_process):
+		stream_process.terminate()
+		while True:
+			try:
+				os.remove(self.vid_path)
+				break
+			except Exception:
+				pass
 
 
 class Termux_Stream(Stream):
 
 	def __init__(self, **kwargs):
 		self.vid_path = 'bb_stream.ts'
-		super(Stream, self).__init__(**kwargs)
+		super(Termux_Stream, self).__init__(**kwargs)
 
 	def display_video(self):
 		subprocess.call(['termux-open', '--chooser', self.vid_path])
+
+	def is_watching(self, stream_process):
+		return "IDK"
+
+	def wrap_up(self, stream_process):
+		print("You'll have to wrap it up yourself")
 
 
 if __name__ == '__main__':
@@ -85,7 +92,9 @@ if __name__ == '__main__':
 
 	BB_Stream.display_video()
 
-	if BB_Stream.watching(stream_dl_proc) is False:
-		print('done watching')
-
+	while BB_Stream.is_watching() is not False:
+		time.sleep(1)
+		pass
+	else:
+		BB_Stream.wrap_up(stream_dl_proc)
 
