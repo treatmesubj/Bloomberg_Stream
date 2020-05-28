@@ -78,6 +78,7 @@ class Termux_Stream(Stream):
 		super(Termux_Stream, self).__init__(**kwargs)
 
 	def display_video(self):
+		print("VLC Media Player works well")
 		subprocess.call(['termux-open', '--chooser', self.vid_path])
 
 	def is_watching(self):
