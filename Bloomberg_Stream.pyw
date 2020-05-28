@@ -45,7 +45,7 @@ class Windows_Stream(Stream):
 	"""
 
 	def __init__(self, **kwargs):
-		self.vid_path = f"{os.path.dirname(sys.argv[0])}\\bb_stream.ts"
+		self.vid_path = f"{os.path.dirname(sys.argv[0])}\\bb_stream.mp4"
 		super(Windows_Stream, self).__init__(**kwargs)
 
 	def display_video(self):
@@ -74,12 +74,12 @@ class Termux_Stream(Stream):
 	"""
 
 	def __init__(self, **kwargs):
-		self.vid_path = 'bb_stream.ts'
+		self.vid_path = 'bb_stream.mp4'
 		super(Termux_Stream, self).__init__(**kwargs)
 
 	def display_video(self):
-		print("VLC Media Player works well")
-		subprocess.call(['termux-open', '--chooser', self.vid_path])
+		# subprocess.call(['termux-open', '--chooser', self.vid_path])  # VLC Media Player seems to work
+		subprocess.call(['am', 'start', '--user', '0', '-n', 'org.videolan.vlc/org.videolan.vlc.gui.video.VideoPlayerActivity', '-d', f"{os.getcwd()}/{self.vid_path}"])
 
 	def is_watching(self):
 		return "IDK"
@@ -97,7 +97,7 @@ def Stream_Session(Stream_Obj):
 
 	stream_dl_proc = multiprocessing.Process(target=Stream_Obj.download_stream)
 	stream_dl_proc.start()  # concurrent download process while everything else happens
-	while not os.path.exists(Stream_Obj.vid_path) or os.stat(Stream_Obj.vid_path).st_size < 100:
+	while not os.path.exists(Stream_Obj.vid_path) or os.stat(Stream_Obj.vid_path).st_size < 1000:
 		pass  # build up at least some buffer for streaming continuity and ability to open file
 	Stream_Obj.display_video()
 	while Stream_Obj.is_watching() is not False:
