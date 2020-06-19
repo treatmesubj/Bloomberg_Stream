@@ -18,4 +18,4 @@ Closing Windows Media Player will kill __main__ and the transport stream downloa
 
 You can watch it on your phone! On Android, Bloomberg_Stream.pyw can run via Python in the Termux Linux environment and VLC Media Player! It even has closed captions and a pop-up player!
 
-![alt text](https://github.com/treatmesubj/Bloomberg_Stream/blob/master/android_bb.jpg)
+![alt text](https://github.com/treatmesubj/Bloomberg_Stream/blob/master/droid_bb.jpg)
