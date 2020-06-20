@@ -22,10 +22,14 @@ class Stream:
 		self.ext_url = ext_url
 		self.m3u8_url = m3u8_url
 		self.bless_dl = False
+		self.keep_dl = False
 
-	def download_stream(self):
 		if os.path.exists(self.vid_path):
 			os.remove(self.vid_path)
+			while os.path.exists(self.vid_path):
+				pass
+
+	def download_stream(self):
 		with open(self.vid_path, "wb") as f:
 			while True:
 				r = requests.get(self.m3u8_url)
@@ -58,8 +62,8 @@ class Windows_Stream(Stream):
 		else:
 			return False
 
-	def wrap_up(self, stream_process):
-		stream_process.terminate()
+	def wrap_up(self, stream_dl_process):
+		stream_dl_process.terminate()
 		while True:
 			try:
 				os.remove(self.vid_path)
@@ -87,10 +91,19 @@ class Termux_Stream(Stream):
 		subprocess.call(['am', 'start', '--user', '0', '-n', 'org.videolan.vlc/org.videolan.vlc.gui.video.VideoPlayerActivity', '-d', f"{os.getcwd()}/{self.vid_path}"])  # to run local file
 
 	def is_watching(self):
-		return "IDK"
+		input("Hit Enter to terminate stream download session: ")
+		return False
 
-	def wrap_up(self, stream_process):
-		print("You'll have to wrap up things yourself")
+	def wrap_up(self, stream_dl_process):
+		stream_dl_process.terminate()
+		if not self.keep_dl:
+			while True:
+				try:
+					os.remove(self.vid_path)
+					break
+				except Exception:
+					pass
+
 
 	def pure_stream(self):
 		subprocess.call(['am', 'start', '--user', '0', '-n', 'org.videolan.vlc/org.videolan.vlc.gui.video.VideoPlayerActivity', '-a', 'android.intent.action.VIEW', '-d', self.m3u8_url])  # to stream directly!
@@ -106,8 +119,12 @@ def Stream_Session(Stream_Obj):
 	if Stream_Obj.bless_dl:
 		stream_dl_proc = multiprocessing.Process(target=Stream_Obj.download_stream)
 		stream_dl_proc.start()  # concurrent download process while everything else happens
-		while not os.path.exists(Stream_Obj.vid_path) or os.stat(Stream_Obj.vid_path).st_size < 1000:
-			pass  # build up at least some buffer for streaming continuity and ability to open file
+		while not os.path.exists(Stream_Obj.vid_path):
+			print("waiting for file build...", end="\r")
+		while os.stat(Stream_Obj.vid_path).st_size < 4500000:
+			print(f"building file buffer: {os.stat(Stream_Obj.vid_path).st_size} bytes...", end="\r")
+		else:
+			print("\nfile's ready")
 		Stream_Obj.display_local_video()
 		while Stream_Obj.is_watching() is not False:
 			time.sleep(1)
@@ -129,10 +146,14 @@ if __name__ == '__main__':
 		import psutil  # termux can't handle this, I guess
 		BB_Stream = Windows_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
 		BB_Stream.bless_dl = True
+
 	elif platform.system() == 'Linux' and 'termux' in os.environ['SHELL']:
 		BB_Stream = Termux_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
-		if (len(sys.argv) > 1) and sys.argv[1] in ("-dl", "--download"):
+		if any(arg in sys.argv for arg in ("-dl", "--download")):
 			BB_Stream.bless_dl = True
+			if any(arg in sys.argv for arg in ("-k", "--keep")):
+				BB_Stream.keep_dl = True
+	
 	else:
 		print(f"{os.environ=}\nNo support for this environment yet...")
 
