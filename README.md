@@ -10,6 +10,13 @@ Uses the HTTP Live Streaming protocol via hls.js and some HTML; it can be opened
 ## Bloomberg_Stream.pyw
 Uses HTTP requests, subprocesses, and multiprocessing to continually request m3u8 files, download their pointed-at transport-stream files, and write them to a video file on the disk, which is concurrently played in Windows Media Player, all via Python. It's got a lot more overhead and complication than the HTML-stream, but it's cooler. 
 
+Usage: `python Bloomberg_Stream.pyw [-dl|--download] [-k|--keep]`
+```
+Default Behavior: web browser, HTML, and hls.js handle stream directly; no local file is created
+    [-dl|--download]: concurrently downloads the stream content to a local file, which is played in Windows Media Player
+            [-k|--keep]: the local file is not deleted at the end of the streaming session
+```
+
 ![alt text](https://github.com/treatmesubj/Bloomberg_Stream/blob/master/Screenshot%20(31).png)
 
 ### Android Termux
