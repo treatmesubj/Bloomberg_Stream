@@ -6,6 +6,7 @@ import os
 import sys
 import multiprocessing
 import platform
+import webbrowser
 
 
 class Stream:
@@ -50,7 +51,8 @@ class Windows_Stream(Stream):
 	"""
 
 	def __init__(self, **kwargs):
-		self.vid_path = f"{os.path.dirname(sys.argv[0])}\\bb_stream.mp4"
+		self.vid_path = f"{os.getcwd()}\\bb_stream.mp4"
+		self.ps_html_path = f"{os.getcwd()}\\Bloomberg_Stream.html"
 		super(Windows_Stream, self).__init__(**kwargs)
 
 	def display_local_video(self):
@@ -72,8 +74,36 @@ class Windows_Stream(Stream):
 				pass
 
 	def pure_stream(self):
-		# TODO
-		pass
+		while True:
+			if os.path.exists(self.ps_html_path):
+				webbrowser.open(self.ps_html_path)
+				break
+			else:  # write html file to be opened
+				with open(self.ps_html_path, "w") as f:
+					f.write(
+"""<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<body style="background-color:black;">
+  <video id="video" class="videoCentered" controls="" autoplay="" style="position: fixed; height: 100%; width: 100%"></video>
+</body>
+<script>
+  var video = document.getElementById('video');
+  var videoSrc = 'https://liveprodusphoenixeast.global.ssl.fastly.net/USPhx-HD/Channel-TX-USPhx-AWS-virginia-1/Source-USPhx-16k-1-s6lk2-BP-07-02-81ykIWnsMsg_live.m3u8';
+  if (Hls.isSupported()) {
+    var hls = new Hls();
+    hls.loadSource(videoSrc);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      video.play();
+    });
+  }
+  else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = videoSrc;
+    video.addEventListener('loadedmetadata', function() {
+      video.play();
+    });
+  }
+</script>""")
+
 
 
 class Termux_Stream(Stream):
@@ -143,9 +173,12 @@ if __name__ == '__main__':
 	m3u8_url = f"{root_url}/{ext_url}_live.m3u8"
 
 	if platform.system() == 'Windows':
-		import psutil  # termux can't handle this, I guess
+		import psutil  # termux can't handle this import
 		BB_Stream = Windows_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
-		BB_Stream.bless_dl = True
+		if any(arg in sys.argv for arg in ("-dl", "--download")):
+			BB_Stream.bless_dl = True
+			if any(arg in sys.argv for arg in ("-k", "--keep")):
+				BB_Stream.keep_dl = True
 
 	elif platform.system() == 'Linux' and 'termux' in os.environ['SHELL']:
 		BB_Stream = Termux_Stream(root_url=root_url, ext_url=ext_url, m3u8_url=m3u8_url)
